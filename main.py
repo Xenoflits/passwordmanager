@@ -1,15 +1,19 @@
 import tkinter
+from tkinter.constants import END
 
 
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
 
 # ---------------------------- SAVE PASSWORD ------------------------------- #
 def write_password(username,password,website):
-    with open("./passwords.txt","w") as passwords_txt:
-        passwords_txt.write(f"{website}  |  {username}  |  {password}")
+    with open("./passwords.txt","a") as passwords_txt:
+        passwords_txt.write(f"{website}  |  {username}  |  {password} \n")
 
 def add_click():
     write_password(email_input.get(),password_input.get(),website_input.get())
+    website_input.delete(0, END)
+    
+    password_input.delete(0, END)
 
 
 
