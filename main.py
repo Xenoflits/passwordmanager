@@ -2,7 +2,8 @@ import tkinter as tk
 from tkinter.constants import END
 from tkinter import messagebox
 import random
-
+import json
+import os
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
 def generate():
     letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -28,9 +29,33 @@ def click_generate():
     generate()
 
 # ---------------------------- SAVE PASSWORD ------------------------------- #
-def write_password(username, password, website):
-    with open("passwords.txt", "a") as passwords_txt:
-        passwords_txt.write(f"{website} | {username} | {password}\n")
+def write_password(email, password, website):
+    new_data = {
+        website: {
+            "email": email,
+            "password": password
+        }
+    }
+    
+    # Check if the file exists
+    if os.path.exists("passwords.json"):
+        # Open the file in read mode to load existing data
+        with open("passwords.json", "r") as passwords_json:
+            try:
+                data = json.load(passwords_json)
+            except json.JSONDecodeError:
+                # Handle the case where the file is empty or corrupted
+                data = {}
+    else:
+        # If the file does not exist, start with an empty dictionary
+        data = {}
+        
+    # Update the existing data with the new entry
+    data.update(new_data)
+    
+    # Write the updated data back to the file in write mode
+    with open("passwords.json", "w") as passwords_json:
+        json.dump(data, passwords_json, indent=4)
 
 def add_click():
     password = password_input.get()
@@ -38,11 +63,9 @@ def add_click():
     website = website_input.get()
 
     if len(password) > 0 and len(email) > 0 and len(website) > 0:
-        is_ok = messagebox.askokcancel(title="Confirmation", message=f"Are you okay with using '{password}' for '{website}'?")
-        if is_ok:
-            write_password(email, password, website)
-            website_input.delete(0, END)
-            password_input.delete(0, END)
+        write_password(email, password, website)
+        website_input.delete(0, END)
+        password_input.delete(0, END)
     else:
         messagebox.showerror(title="Error", message="Don't leave any fields empty")
 
