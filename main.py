@@ -4,6 +4,7 @@ from tkinter import messagebox
 import random
 import json
 import os
+import pyperclip
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
 def generate():
     letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -56,7 +57,8 @@ def write_password(email, password, website):
     # Write the updated data back to the file in write mode
     with open("passwords.json", "w") as passwords_json:
         json.dump(data, passwords_json, indent=4)
-
+        messagebox.showinfo(title="succes",message=f"Succesfully saved password and copied to clipboard")
+        pyperclip.copy(password)
 def add_click():
     password = password_input.get()
     email = email_input.get()
@@ -69,6 +71,20 @@ def add_click():
     else:
         messagebox.showerror(title="Error", message="Don't leave any fields empty")
 
+# ----------------------------  Search  ------------------------------- #     
+
+def search():
+    if os.path.exists("passwords.json"):
+        with open("passwords.json", "r") as data:
+            data = json.load(data)
+            website = website_input.get()
+            try:
+                print(data[website])
+            except:
+                messagebox.showerror(title="no password",message="No password for this site")
+            else:
+                messagebox.showinfo(title="your password",message=f"Your password is {data[website]["password"]}")
+                pyperclip.copy(data[website]['password'])
 # ---------------------------- UI SETUP ------------------------------- #
 window = tk.Tk()
 window.title("Password Manager")
@@ -81,32 +97,36 @@ canvas.create_image(100, 100, image=image)
 canvas.grid(row=0, column=1)
 
 # Labels
-website_label = tk.Label(text="Website:", width=15)
-email_label = tk.Label(text="Email/Username:", width=15)
-password_label = tk.Label(text="Password:", width=15)
-
-# Buttons
-generate_button = tk.Button(text="Generate Password", command=click_generate)
-add_button = tk.Button(text="Add", width=35, command=add_click)
+website_label = tk.Label(text="Website:", width=15, anchor="w")
+email_label = tk.Label(text="Email/Username:", width=15, anchor="w")
+password_label = tk.Label(text="Password:", width=15, anchor="w")
 
 # Entries
-website_input = tk.Entry(width=35)
-email_input = tk.Entry(width=35)
-password_input = tk.Entry(width=25)
+website_input = tk.Entry(width=35, justify="left")  # Adjusted width for better layout
+email_input = tk.Entry(width=35, justify="left")    # Adjusted width for better layout
+password_input = tk.Entry(width=21, justify="left") # Adjusted width for better layout
 
-# Layout
-website_label.grid(row=1, column=0)
-website_input.grid(row=1, column=1, columnspan=2)
-website_input.focus()
+# Buttons
+generate_button = tk.Button(text="Generate Password", width=15, command=click_generate)
+add_button = tk.Button(text="Add", width=36, command=add_click) # Adjusted width for better layout
+search_button = tk.Button(text="Search", width=15, command=search)
 
-email_label.grid(row=2, column=0)
-email_input.grid(row=2, column=1, columnspan=2)
+# Layout using grid
+website_label.grid(row=1, column=0, pady=5)
+website_input.grid(row=1, column=1, pady=5, sticky="ew")
+search_button.grid(row=1, column=2, padx=5, pady=5)
+
+email_label.grid(row=2, column=0, pady=5)
+email_input.grid(row=2, column=1, columnspan=2, pady=5, sticky="ew")
 email_input.insert(0, "soeradj.mahabiersing@gmail.com")
 
-password_label.grid(row=3, column=0)
-password_input.grid(row=3, column=1)
-generate_button.grid(row=3, column=2)
+password_label.grid(row=3, column=0, pady=5)
+password_input.grid(row=3, column=1, pady=5, sticky="ew")
+generate_button.grid(row=3, column=2, padx=5, pady=5)
 
-add_button.grid(row=4, column=1, columnspan=2)
+add_button.grid(row=4, column=1, columnspan=2, pady=10)
+window.grid_columnconfigure(0, weight=1)
+window.grid_columnconfigure(1, weight=1)
+window.grid_columnconfigure(2, weight=1)
 
 window.mainloop()
